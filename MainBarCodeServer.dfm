@@ -3,8 +3,8 @@ object MainForm: TMainForm
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
   Caption = 'GR-Barcode Server'
-  ClientHeight = 274
-  ClientWidth = 403
+  ClientHeight = 411
+  ClientWidth = 450
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,9 +18,9 @@ object MainForm: TMainForm
   TextHeight = 13
   object Memo1: TMemo
     Left = 0
-    Top = 73
-    Width = 403
-    Height = 201
+    Top = 129
+    Width = 450
+    Height = 282
     Align = alClient
     BorderStyle = bsNone
     ReadOnly = True
@@ -29,16 +29,17 @@ object MainForm: TMainForm
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 403
-    Height = 73
+    Width = 450
+    Height = 129
     Align = alTop
     TabOrder = 1
+    ExplicitTop = -6
     object Label1: TLabel
       Left = 8
       Top = 8
-      Width = 66
+      Width = 56
       Height = 13
-      Caption = 'Servern'#248'kkel:'
+      Caption = 'Server key:'
     end
     object Label5: TLabel
       Left = 8
@@ -49,21 +50,28 @@ object MainForm: TMainForm
     end
     object Label2: TLabel
       Left = 8
-      Top = 54
-      Width = 27
+      Top = 108
+      Width = 21
       Height = 13
-      Caption = 'Logg:'
+      Caption = 'Log:'
     end
-    object Button1: TButton
+    object Label3: TLabel
+      Left = 8
+      Top = 54
+      Width = 24
+      Height = 13
+      Caption = 'Port:'
+    end
+    object ServerKeyGenerateBtn1: TButton
       Left = 103
       Top = 25
       Width = 66
       Height = 25
-      Caption = 'Generer'
+      Caption = 'Generate'
       TabOrder = 0
-      OnClick = Button1Click
+      OnClick = ServerKeyGenerateBtn1Click
     end
-    object Edit1: TEdit
+    object ServerKeyEdit1: TEdit
       Left = 8
       Top = 27
       Width = 89
@@ -71,9 +79,26 @@ object MainForm: TMainForm
       ReadOnly = True
       TabOrder = 1
     end
+    object PortEdit1: TEdit
+      Left = 8
+      Top = 73
+      Width = 89
+      Height = 21
+      NumbersOnly = True
+      TabOrder = 2
+      Text = '6942'
+    end
+    object PortBtn1: TButton
+      Left = 103
+      Top = 71
+      Width = 75
+      Height = 25
+      Caption = 'Apply'
+      TabOrder = 3
+      OnClick = PortBtn1Click
+    end
   end
   object IdHTTPServer1: TIdHTTPServer
-    Active = True
     Bindings = <
       item
         IP = '0.0.0.0'
@@ -84,8 +109,8 @@ object MainForm: TMainForm
     AutoStartSession = True
     OnHeadersAvailable = IdHTTPServer1HeadersAvailable
     OnDoneWithPostStream = IdHTTPServer1DoneWithPostStream
-    Left = 336
-    Top = 24
+    Left = 360
+    Top = 328
   end
   object IdServerIOHandlerSSLOpenSSL1: TIdServerIOHandlerSSLOpenSSL
     SSLOptions.RootCertFile = 'mycert.pem'
@@ -96,8 +121,8 @@ object MainForm: TMainForm
     SSLOptions.Mode = sslmServer
     SSLOptions.VerifyMode = [sslvrfPeer]
     SSLOptions.VerifyDepth = 0
-    Left = 352
-    Top = 120
+    Left = 232
+    Top = 328
   end
   object TrayIcon1: TTrayIcon
     Hint = 'GR-Barcode Server'
@@ -8555,17 +8580,17 @@ object MainForm: TMainForm
     PopupMenu = PopupMenu1
     Visible = True
     OnClick = TrayIcon1Click
-    Left = 144
-    Top = 112
+    Left = 352
+    Top = 176
   end
   object ApplicationEvents1: TApplicationEvents
     OnMinimize = ApplicationEvents1Minimize
-    Left = 232
-    Top = 88
+    Left = 72
+    Top = 320
   end
   object PopupMenu1: TPopupMenu
-    Left = 224
-    Top = 216
+    Left = 344
+    Top = 240
     object Show1: TMenuItem
       Caption = 'Show'
       OnClick = Show1Click

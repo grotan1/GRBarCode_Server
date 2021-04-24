@@ -16,9 +16,9 @@ type
     Memo1: TMemo;
     IdServerIOHandlerSSLOpenSSL1: TIdServerIOHandlerSSLOpenSSL;
     Panel1: TPanel;
-    Button1: TButton;
+    ServerKeyGenerateBtn1: TButton;
     Label1: TLabel;
-    Edit1: TEdit;
+    ServerKeyEdit1: TEdit;
     Label5: TLabel;
     TrayIcon1: TTrayIcon;
     ApplicationEvents1: TApplicationEvents;
@@ -26,7 +26,10 @@ type
     PopupMenu1: TPopupMenu;
     Show1: TMenuItem;
     Exit1: TMenuItem;
-    procedure Button1Click(Sender: TObject);
+    Label3: TLabel;
+    PortEdit1: TEdit;
+    PortBtn1: TButton;
+    procedure ServerKeyGenerateBtn1Click(Sender: TObject);
     procedure IdHTTPServer1HeadersAvailable(AContext: TIdContext;
       const AUri: string; AHeaders: TIdHeaderList;
       var VContinueProcessing: Boolean);
@@ -41,10 +44,12 @@ type
     procedure Show1Click(Sender: TObject);
     procedure Exit1Click(Sender: TObject);
     procedure ShowApp();
+    procedure PortBtn1Click(Sender: TObject);
 
   private
     hw: HWND;
-    key: String;
+    key_ini: String;
+    port_ini: String;
     auth: Boolean;
     { Private declarations }
   public
@@ -68,14 +73,14 @@ var
 
 begin
   // Generate auth key
-  key := '';
+  key_ini := '';
   for x := 0 to 9 do
   begin
     y := Chr(ord('0') + Random(10));
-    key.Insert(0, y);
+    key_ini.Insert(0, y);
   end;
-  grg.WriteINIstr('Server', 'Key', key);
-  Edit1.text := key;
+  grg.WriteINIstr('Server', 'Key', key_ini);
+  ServerKeyEdit1.text := key_ini;
 
 end;
 
@@ -95,7 +100,7 @@ begin
   TrayIcon1.ShowBalloonHint;
 end;
 
-procedure TMainForm.Button1Click(Sender: TObject);
+procedure TMainForm.ServerKeyGenerateBtn1Click(Sender: TObject);
 
 begin
   CreateKey();
@@ -110,16 +115,26 @@ procedure TMainForm.FormShow(Sender: TObject);
 begin
   if grg.INIstrExists('Server', 'key') = True then
   begin
-    key := grg.ReadINIstr('Server', 'key');
-    if key.Length < 8 then
+    key_ini := grg.ReadINIstr('Server', 'key');
+    if key_ini.Length < 8 then
       CreateKey();
-
   end
   else
   begin
     CreateKey();
   end;
-  Edit1.text := key;
+
+  if grg.INIstrExists('Server', 'port') = True then
+  begin
+    port_ini := grg.ReadINIstr('Server', 'port');
+  end
+  else
+    port_ini := '6942';
+
+  PortEdit1.text := port_ini;
+  ServerKeyEdit1.text := key_ini;
+  IdHTTPServer1.Bindings.Items[0].port := strtoint(port_ini);
+  IdHTTPServer1.Active := True;
 end;
 
 procedure TMainForm.IdHTTPServer1DoneWithPostStream(AContext: TIdContext;
@@ -162,14 +177,44 @@ procedure TMainForm.IdHTTPServer1HeadersAvailable(AContext: TIdContext;
   const AUri: string; AHeaders: TIdHeaderList;
   var VContinueProcessing: Boolean);
 
+var
+  todayStr: string;
 begin
+  todayStr := DateTimeToStr(now);
   // Check if client has correct key
-  if AHeaders.Values['X-API-KEY'] = key then
+  if AHeaders.Values['X-API-KEY'] = key_ini then
   begin
     auth := True;
   end
   else
+  begin
     auth := False;
+    VContinueProcessing := False;
+    Memo1.Lines.Insert(0, todayStr + ': Auth failed from ' +
+      AContext.Binding.PeerIP);
+
+  end;
+
+end;
+
+procedure TMainForm.PortBtn1Click(Sender: TObject);
+
+var
+  port: Integer;
+
+begin
+  port_ini := PortEdit1.text;
+  grg.WriteINIstr('Server', 'port', port_ini);
+  IdHTTPServer1.Active := False;
+  try
+    port := strtoint(PortEdit1.text);
+  except
+    port := 6942;
+  end;
+  IdHTTPServer1.Bindings.Items[0].port := port;
+  IdHTTPServer1.Active := True;
+  Memo1.Lines.Add(inttostr(IdHTTPServer1.Bindings.Items[0].port));
+
 end;
 
 Procedure TMainForm.PostVKey();
